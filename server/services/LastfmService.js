@@ -1,6 +1,11 @@
 const axios = require('axios')
 const dotenv = require('dotenv').config()
 
+
+const skv_actions = {
+    "usertracks" : '?method=user.getrecenttracks'
+}
+
 module.exports = {
 
     /***
@@ -12,17 +17,23 @@ module.exports = {
      * 	       only get content newer/older to prevent duplication 
     ***/
 
-    async getContent() {
+    async getContent( action, config ) {
 
         // define parts of Last.fm API url
         const base_url = 'http://ws.audioscrobbler.com/2.0/';
-        const method   = '?method=user.getrecenttracks';
+        const method   = skv_actions[ action ];
         const user     = `&user=${process.env.LASTFM_USERNAME}`;
         const api_key  = `&api_key=${process.env.LASTFM_API_KEY}`;
         const format   = '&format=json';
+        let config_params = '';
+
+        for( let param in config ){
+            config_params += `&${param}=${config[ param ]}`
+        }
 
         // concat parts into usable url string
-        const lastfm_api_url = base_url + method + user + api_key + format;
+        const lastfm_api_url = base_url + method + user + api_key + 
+            config_params + format;
 
         // make api call        
         const response = await axios.get( lastfm_api_url )
